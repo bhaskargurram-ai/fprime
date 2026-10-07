@@ -33,6 +33,7 @@ struct StaticData {
         GET_FREESPACE_FN,
         GET_HANDLE_FN,
         GET_PATH_TYPE_FN,
+        IS_SAME_FILE_FN,
     };
     StaticData() = default;
     ~StaticData() = default;
@@ -65,6 +66,7 @@ class TestFileSystem : public FileSystemInterface {
     Status _changeWorkingDirectory(const char* path) override;
     Status _getWorkingDirectory(char* path, FwSizeType size) override;
     Status _getPathType(const char* path, PathType& pathType) override;
+    Status _isSameFile(const char* path1, const char* path2, bool& isSame) override;
 
     //! \brief return the underlying FileSystem handle (implementation specific)
     //! \return internal task handle representation

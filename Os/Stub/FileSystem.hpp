@@ -106,6 +106,16 @@ class StubFileSystem : public FileSystemInterface {
     //! \return Status of the operation
     Status _getPathType(const char* path, PathType& pathType) override;
 
+    //! \brief Check whether two paths refer to the same file (e.g. identical paths or hard links)
+    //!
+    //! It is invalid to pass `nullptr` as either path.
+    //!
+    //! \param path1 The first path to compare
+    //! \param path2 The second path to compare
+    //! \param isSame Reference set to true if both paths refer to the same file, false otherwise
+    //! \return Status of the operation
+    Status _isSameFile(const char* path1, const char* path2, bool& isSame) override;
+
   private:
     //! FileSystem handle for PosixFileSystem
     StubFileSystemHandle m_handle;

@@ -104,6 +104,16 @@ class FileSystemInterface {
     //! \return Status of the operation
     virtual Status _getPathType(const char* path, PathType& pathType) = 0;
 
+    //! \brief Check whether two paths refer to the same file (e.g. identical paths or hard links)
+    //!
+    //! It is invalid to pass `nullptr` as either path.
+    //!
+    //! \param path1 The first path to compare
+    //! \param path2 The second path to compare
+    //! \param isSame Reference set to true if both paths refer to the same file, false otherwise
+    //! \return Status of the operation
+    virtual Status _isSameFile(const char* path1, const char* path2, bool& isSame) = 0;
+
     //! \brief Get the current working directory
     //! \param path Buffer to store the current working directory path
     //! \param bufferSize Size of the buffer
@@ -202,6 +212,16 @@ class FileSystem final : public FileSystemInterface {
     //! \param pathType Reference to store the path type
     //! \return Status of the operation
     Status _getPathType(const char* path, PathType& pathType) override;
+
+    //! \brief Check whether two paths refer to the same file (e.g. identical paths or hard links)
+    //!
+    //! It is invalid to pass `nullptr` as either path.
+    //!
+    //! \param path1 The first path to compare
+    //! \param path2 The second path to compare
+    //! \param isSame Reference set to true if both paths refer to the same file, false otherwise
+    //! \return Status of the operation
+    Status _isSameFile(const char* path1, const char* path2, bool& isSame) override;
 
     // ------------------------------------------------------------
     // Implementation-specific FileSystem static functions
@@ -324,7 +344,8 @@ class FileSystem final : public FileSystemInterface {
     //! \brief Copy a file from the source path to the destination path
     //!
     //! This function opens both files, and iteratively reads the source by chunks and writes
-    //! chunks to the destination.
+    //! chunks to the destination. If both paths refer to the same file, the file is left
+    //! unchanged and OP_OK is returned.
     //!
     //! It is invalid to pass `nullptr` as either the source or destination path.
     //!

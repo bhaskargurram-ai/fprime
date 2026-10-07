@@ -62,6 +62,12 @@ TestFileSystem::Status TestFileSystem::_getPathType(const char* path, PathType& 
     return StaticData::data.lastStatus;
 }
 
+TestFileSystem::Status TestFileSystem::_isSameFile(const char* path1, const char* path2, bool& isSame) {
+    StaticData::data.lastCalled = StaticData::IS_SAME_FILE_FN;
+    isSame = false;
+    return StaticData::data.lastStatus;
+}
+
 }  // namespace Test
 }  // namespace FileSystem
 }  // namespace Stub

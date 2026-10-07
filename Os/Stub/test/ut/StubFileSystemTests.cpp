@@ -65,6 +65,14 @@ TEST_F(Interface, GetFreeSpace) {
     ASSERT_EQ(StaticData::data.lastStatus, Os::FileSystem::Status::OP_OK);
 }
 
+// Ensure that Os::FileSystem properly calls the implementation isSameFile()
+TEST_F(Interface, IsSameFile) {
+    bool isSame = true;
+    Os::FileSystem::getSingleton()._isSameFile("/does/not/matter", "/does/not/matter", isSame);
+    ASSERT_EQ(StaticData::data.lastCalled, StaticData::LastFn::IS_SAME_FILE_FN);
+    ASSERT_EQ(StaticData::data.lastStatus, Os::FileSystem::Status::OP_OK);
+}
+
 // Ensure that Os::FileSystem properly calls the implementation getHandle()
 TEST_F(Interface, GetHandle) {
     ASSERT_NE(Os::FileSystem::getSingleton().getHandle(), nullptr);

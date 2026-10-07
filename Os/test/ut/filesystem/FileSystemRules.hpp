@@ -120,6 +120,15 @@ struct CopyFileOverwrite : public STest::Rule<Os::Test::FileSystem::Tester> {
 };
 
 // ------------------------------------------------------------------------------------------------------
+// Rule:  CopyFileToItself: Copy a file onto itself, leaving it unchanged
+// ------------------------------------------------------------------------------------------------------
+struct CopyFileToItself : public STest::Rule<Os::Test::FileSystem::Tester> {
+    CopyFileToItself();
+    bool precondition(const Os::Test::FileSystem::Tester& state);
+    void action(Os::Test::FileSystem::Tester& state);
+};
+
+// ------------------------------------------------------------------------------------------------------
 // Rule:  AppendFile: Append a file to another existing file
 // ------------------------------------------------------------------------------------------------------
 struct AppendFile : public STest::Rule<Os::Test::FileSystem::Tester> {

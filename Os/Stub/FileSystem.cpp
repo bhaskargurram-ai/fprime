@@ -40,6 +40,10 @@ StubFileSystem::Status StubFileSystem::_getPathType(const char* path, PathType& 
     return Status::NOT_SUPPORTED;
 }
 
+StubFileSystem::Status StubFileSystem::_isSameFile(const char* path1, const char* path2, bool& isSame) {
+    return Status::NOT_SUPPORTED;
+}
+
 }  // namespace FileSystem
 }  // namespace Stub
 }  // namespace Os

@@ -121,6 +121,22 @@ PosixFileSystem::Status PosixFileSystem::_getPathType(const char* path, PathType
     }
 }
 
+PosixFileSystem::Status PosixFileSystem::_isSameFile(const char* path1, const char* path2, bool& isSame) {
+    FW_ASSERT(path1 != nullptr);
+    FW_ASSERT(path2 != nullptr);
+    isSame = false;
+    struct stat stat1;
+    struct stat stat2;
+    if (::stat(path1, &stat1) != 0) {
+        return errno_to_filesystem_status(errno);
+    }
+    if (::stat(path2, &stat2) != 0) {
+        return errno_to_filesystem_status(errno);
+    }
+    isSame = (stat1.st_dev == stat2.st_dev) && (stat1.st_ino == stat2.st_ino);
+    return Status::OP_OK;
+}
+
 }  // namespace FileSystem
 }  // namespace Posix
 }  // namespace Os

@@ -3,6 +3,8 @@
 // \brief tests for posix implementation for Os::FileSystem
 // ======================================================================
 #include <gtest/gtest.h>
+#include <unistd.h>
+#include <cstring>
 #include "Fw/Types/String.hpp"
 #include "Os/Posix/Task.hpp"
 #include "Os/test/ut/filesystem/CommonTests.hpp"
@@ -84,6 +86,39 @@ TEST_F(PosixFileSystemTest, DetectSpecialPathTypes) {
     // Clean up subdirectory
     ASSERT_EQ(Os::FileSystem::removeDirectory(subdirPath.c_str()), Os::FileSystem::Status::OP_OK)
         << "Failed to remove test directory";
+}
+
+// Copying a file onto a hard link of itself must leave the file unchanged
+TEST_F(PosixFileSystemTest, CopyFileToHardLink) {
+    const std::string source = m_test_dir + "/source.bin";
+    const std::string link = m_test_dir + "/link.bin";
+    const U8 contents[] = {'A', 'B', 'C'};
+
+    Os::File file;
+    ASSERT_EQ(file.open(source.c_str(), Os::File::OPEN_CREATE), Os::File::OP_OK);
+    FwSizeType size = sizeof(contents);
+    ASSERT_EQ(file.write(contents, size), Os::File::OP_OK);
+    file.close();
+    ASSERT_EQ(::link(source.c_str(), link.c_str()), 0) << "Failed to create hard link";
+
+    bool isSame = false;
+    ASSERT_EQ(Os::FileSystem::getSingleton()._isSameFile(source.c_str(), link.c_str(), isSame),
+              Os::FileSystem::Status::OP_OK);
+    ASSERT_TRUE(isSame);
+
+    ASSERT_EQ(Os::FileSystem::copyFile(source.c_str(), link.c_str()), Os::FileSystem::Status::OP_OK);
+
+    ASSERT_EQ(Os::FileSystem::getFileSize(source.c_str(), size), Os::FileSystem::Status::OP_OK);
+    ASSERT_EQ(size, sizeof(contents));
+    U8 readBack[sizeof(contents)] = {};
+    ASSERT_EQ(file.open(source.c_str(), Os::File::OPEN_READ), Os::File::OP_OK);
+    ASSERT_EQ(file.read(readBack, size), Os::File::OP_OK);
+    file.close();
+    ASSERT_EQ(size, sizeof(contents));
+    ASSERT_EQ(memcmp(readBack, contents, sizeof(contents)), 0);
+
+    ASSERT_EQ(Os::FileSystem::removeFile(link.c_str()), Os::FileSystem::Status::OP_OK);
+    ASSERT_EQ(Os::FileSystem::removeFile(source.c_str()), Os::FileSystem::Status::OP_OK);
 }
 
 int main(int argc, char** argv) {

@@ -115,6 +115,12 @@ TEST_F(Functionality, CopyFileOverwrite) {
     copy_overwrite_rule.apply(*tester);
 }
 
+// CopyFileToItself
+TEST_F(Functionality, CopyFileToItself) {
+    Os::Test::FileSystem::Tester::CopyFileToItself copy_to_itself_rule;
+    copy_to_itself_rule.apply(*tester);
+}
+
 // AppendFile
 TEST_F(Functionality, AppendFile) {
     Os::Test::FileSystem::Tester::AppendFile append_rule;

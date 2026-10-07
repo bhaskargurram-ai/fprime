@@ -307,6 +307,28 @@ void Os::Test::FileSystem::Tester::CopyFileOverwrite::action(Os::Test::FileSyste
 }
 
 // ------------------------------------------------------------------------------------------------------
+// Rule:  CopyFileToItself
+// ------------------------------------------------------------------------------------------------------
+Os::Test::FileSystem::Tester::CopyFileToItself::CopyFileToItself()
+    : STest::Rule<Os::Test::FileSystem::Tester>("CopyFileToItself") {}
+
+bool Os::Test::FileSystem::Tester::CopyFileToItself::precondition(const Os::Test::FileSystem::Tester& state) {
+    return state.m_test_files.size() > 0;
+}
+
+void Os::Test::FileSystem::Tester::CopyFileToItself::action(Os::Test::FileSystem::Tester& state) {
+    TestFile& file = state.get_random_file();
+    ASSERT_TRUE(Os::FileSystem::getSingleton().exists(file.path.c_str()));
+
+    Os::FileSystem::Status status = Os::FileSystem::getSingleton().copyFile(file.path.c_str(), file.path.c_str());
+    ASSERT_EQ(status, Os::FileSystem::Status::OP_OK) << "Failed to copy file onto itself";
+
+    // The file and its contents must be unchanged
+    ASSERT_TRUE(Os::FileSystem::getSingleton().exists(file.path.c_str()));
+    ASSERT_TRUE(state.validate_contents_on_disk(file));
+}
+
+// ------------------------------------------------------------------------------------------------------
 // Rule:  AppendFile
 // ------------------------------------------------------------------------------------------------------
 Os::Test::FileSystem::Tester::AppendFile::AppendFile() : STest::Rule<Os::Test::FileSystem::Tester>("AppendFile") {}

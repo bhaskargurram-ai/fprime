@@ -47,6 +47,13 @@ FileSystem::Status FileSystem::_getPathType(const char* path, PathType& pathType
     return this->m_delegate._getPathType(path, pathType);
 }
 
+FileSystem::Status FileSystem::_isSameFile(const char* path1, const char* path2, bool& isSame) {
+    FW_ASSERT(&this->m_delegate == reinterpret_cast<FileSystemInterface*>(&this->m_handle_storage[0]));
+    FW_ASSERT(path1 != nullptr);
+    FW_ASSERT(path2 != nullptr);
+    return this->m_delegate._isSameFile(path1, path2, isSame);
+}
+
 FileSystem::Status FileSystem::_getWorkingDirectory(char* path, FwSizeType bufferSize) {
     FW_ASSERT(&this->m_delegate == reinterpret_cast<FileSystemInterface*>(&this->m_handle_storage[0]));
     FW_ASSERT(path != nullptr);
@@ -152,6 +159,12 @@ bool FileSystem::exists(const char* path) {
 FileSystem::Status FileSystem::copyFile(const char* sourcePath, const char* destPath) {
     FW_ASSERT(sourcePath != nullptr);
     FW_ASSERT(destPath != nullptr);
+    // Opening the destination truncates it, which would destroy the source if both are the same file
+    bool isSameFile = false;
+    const Status sameFileStatus = FileSystem::getSingleton()._isSameFile(sourcePath, destPath, isSameFile);
+    if ((sameFileStatus == Status::OP_OK) && isSameFile) {
+        return Status::OP_OK;
+    }
     Os::File source;
     Os::File destination;
     Os::File::Status fileStatus = source.open(sourcePath, Os::File::OPEN_READ);
